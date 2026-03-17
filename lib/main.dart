@@ -10,6 +10,8 @@ void main(List<String> args) async {
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
+  FlutterNativeSplash.remove();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(MyApp());
 }
