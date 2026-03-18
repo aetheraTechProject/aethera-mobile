@@ -42,6 +42,8 @@ Widget _buildMainChart(List<double> dataPoints) {
     ),
     child: LineChart(
       LineChartData(
+        minY: 0, // pH minimal 0
+        maxY: 14, // pH maksimal 14
         gridData: FlGridData(show: false),
         titlesData: FlTitlesData(show: false),
         borderData: FlBorderData(show: false),
@@ -91,6 +93,31 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  List<double> phHistory = [7.0, 7.0, 7.0, 7.0, 7.0];
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Pakai variabel 'database' yang lo buat di atas tadi
+    database.ref('sensor/ph').onValue.listen((event) {
+      // Cek apakah data ada
+      if (event.snapshot.value != null) {
+        final double? newPh = double.tryParse(event.snapshot.value.toString());
+
+        if (newPh != null && mounted) {
+          setState(() {
+            phHistory.add(newPh);
+            if (phHistory.length > 15) {
+              // Gue saranin 15 biar grafik agak lebaran dikit
+              phHistory.removeAt(0);
+            }
+          });
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -194,7 +221,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 10),
-                  _buildMainChart([7.0, 7.2, 7.1, 7.5, 7.3, 8.0, 7.8]),
+                  _buildMainChart(phHistory),
                   SizedBox(height: 15),
                   GridView.count(
                     crossAxisCount: 2,
